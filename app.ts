@@ -9,15 +9,15 @@ const router = createRouter({
   routes: [
     {
       path: '/',
-      redirect: '/pages/home'
+      redirect: '/home'
     },
     {
-      path: '/pages/home',
+      path: '/home',
       component: () => import('./pages/home/index.vue')
     },
     {
-      path: '/pages/about',
-      component: () => import('./pages/about/index.vue')
+      path: '/expert',
+      component: () => import('./pages/expert/index.vue')
     }
   ]
 })
