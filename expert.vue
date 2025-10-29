@@ -1,19 +1,26 @@
 <template>
-  <div class="bg-white min-h-screen font-sans">
+  <div class="font-sans bg-gray-50 min-h-screen">
     <!-- Header -->
-    <header class="p-4 flex justify-between items-center">
-      <h1 class="text-xl font-bold">Expert Community</h1>
+    <header class="p-4 flex justify-between items-center bg-white">
+      <h1 class="text-xl font-bold text-gray-800">社区</h1>
+      <div class="flex items-center space-x-4">
+        <button>
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+          </svg>
+        </button>
+      </div>
     </header>
 
     <!-- Search Bar -->
-    <div class="p-4">
+    <div class="p-4 bg-white">
       <div class="relative">
-        <input 
-          type="text" 
-          placeholder="Search for expert" 
+        <input
+          type="text"
+          placeholder="搜索帖子"
           class="w-full bg-gray-100 border-none rounded-full px-10 py-2 focus:outline-none"
           v-model="searchQuery"
-          @keydown.enter="loadExperts"
+          @keydown.enter="searchPosts"
         />
         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
@@ -21,158 +28,153 @@
       </div>
     </div>
 
-    <!-- Filters -->
-    <div class="px-4 pb-4 flex space-x-2 overflow-x-auto">
-      <button 
-        @click="selectCategory('')"
-        :class="['px-4 py-1 rounded-full text-sm', selectedCategory === '' ? 'bg-red-500 text-white' : 'bg-gray-100 text-gray-500']"
-      >
-        全部
-      </button>
-      <button 
-        v-for="category in categories" 
-        :key="category" 
-        @click="selectCategory(category)"
-        :class="['px-4 py-1 rounded-full text-sm whitespace-nowrap', selectedCategory === category ? 'bg-red-500 text-white' : 'bg-gray-100 text-gray-500']"
-      >
-        {{ category }}
-      </button>
+    <!-- Tabs -->
+    <div class="bg-white">
+      <nav class="flex space-x-4 px-4">
+        <button
+          v-for="(tab, index) in tabs"
+          :key="tab.name"
+          @click="selectTab(index)"
+          :class="['py-2 px-1 text-sm font-semibold', activeTab === index ? 'text-red-500 border-b-2 border-red-500' : 'text-gray-500']"
+        >
+          {{ tab.name }}
+        </button>
+      </nav>
     </div>
-    
 
-
-    <!-- Expert List -->
-    <main>
-      <div class="px-4 pb-20">
-        <div class="bg-white rounded-lg shadow-md p-4 mb-4" v-for="expert in experts" :key="expert.expertsTableId">
-          <div class="flex items-center mb-4">
-            <img :src="expert.expertPic" class="h-16 w-16 rounded-full mr-4" />
-            <div class="flex-grow">
-              <div class="flex justify-between items-center">
-                <div>
-                  <p class="font-bold">{{ expert.expertUserCn }}</p>
-                  <p class="text-gray-500 text-sm">{{ expert.expertPos }}   {{ expert.expertDept }} </p>
-
-                  <p class="text-gray-500 text-sm"></p>
-                </div>
-                <span class="bg-gray-100 text-gray-500 text-xs px-2 py-1 rounded-full">{{ expert.expertCategory }}</span>
-                <button @click="handleClick(expert.expertUserId)" class="bg-red-500 text-white w-8 h-8 rounded-full flex items-center justify-center">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" /></svg>
-                </button>
+    <!-- Post List -->
+    <main class="p-4">
+      <div v-if="isLoading" class="flex justify-center items-center h-64">
+        <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-gray-900"></div>
+      </div>
+      <div v-else>
+        <div v-if="posts.length === 0" class="text-center text-gray-500 mt-8">
+          没有找到相关的帖子
+        </div>
+        <div v-else class="space-y-4">
+          <div v-for="post in posts" :key="post.postId" @click="navigateToPost(post.postId, post.postType)" class="bg-white rounded-lg shadow p-4">
+            <div class="flex items-center mb-2">
+              <img src="https://via.placeholder.com/40" alt="avatar" class="w-10 h-10 rounded-full mr-3">
+              <div>
+                <p class="font-semibold">{{ post.creatorUserCn }}</p>
+                <p class="text-sm text-gray-500">{{ post.creatorDept }}</p>
+              </div>
+            </div>
+            <h2 class="font-bold text-lg mb-2">{{ post.postTitle }}</h2>
+            <div class="text-gray-600 text-sm mb-4" v-html="post.postDetails.substring(0, 100) + '...'"></div>
+            <div class="flex justify-between items-center text-sm text-gray-500">
+              <div class="flex space-x-4">
+                <span class="flex items-center"><svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>{{ post.views }}</span>
+                <span class="flex items-center"><svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" /></svg>{{ post.comments }}</span>
+                <span class="flex items-center"><svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21H9.42a2 2 0 01-1.92-2.618l2.34-6.438A2 2 0 0112.22 10H14zM4 21V10a2 2 0 012-2h1" /></svg>{{ post.likes }}</span>
+              </div>
+              <div class="flex space-x-2">
+                <span v-for="tag in JSON.parse(post.postTags || '[]')" :key="tag" class="bg-gray-100 text-gray-600 px-2 py-1 rounded-full text-xs">#{{ tag }}</span>
               </div>
             </div>
           </div>
-          <div>
-            <p class="font-bold text-sm">IT qualification</p>
-            <p class="text-gray-500 text-sm">擅长领域: {{ expert.expertStr }}</p>
-          </div>
-        </div>
-        <div v-if="!isLoading && experts.length === 0" class="text-center text-gray-500 mt-8">
-          No experts found.
         </div>
       </div>
     </main>
-  </div>
-  
-  <!-- Loading Overlay -->
-  <div v-if="isLoading" class="fixed inset-0 bg-gray-500 bg-opacity-75 flex items-center justify-center z-50">
-    <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-white"></div>
+
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted } from 'vue';
+import { useRouter } from 'vue-router';
 
-const API_URL = 'community/expertfindlist';
-
-interface Expert {
-  expertsTableId: number;
-  expertUserCn: string;
-  expertDept: string;
-  expertPos: string;
-  expertCategory: string;
-  expertStr: string;
-  expertPic: string;
-  expertUserId: string;
+interface Post {
+  postId: number;
+  creatorUserCn: string;
+  creatorDept: string;
+  postTitle: string;
+  postDetails: string;
+  views: number;
+  likes: number;
+  comments: number;
+  postTags: string;
+  postType: string;
 }
 
+const router = useRouter();
 const searchQuery = ref('');
-const selectedCategory = ref('');
-const experts = ref<Expert[]>([]);
-const categories = ['普惠安全', '普惠教育', '普惠连接','普惠政务', '普惠能源', '云智OS' , '云与算力'];
+const activeTab = ref(0);
+const posts = ref<Post[]>([]);
 const isLoading = ref(false);
 
+const tabs = [
+  { name: '综合推荐', payload: { "status": "1" } },
+  { name: '答疑解惑', payload: { "status": "1", "postType": 1 } },
+  { name: '技术交流', payload: { "status": "1", "postType": 2 } },
+  { name: '悬赏', payload: { "status": "1", "postType": 3 } },
+  { name: '我的', payload: { "status": "1", "creatorUserCn": "YOUR_USER_CN_HERE" } }, // Placeholder
+];
 
-const loadExperts = async () => {
+const loadPosts = async () => {
   isLoading.value = true;
-  let body = {};
-
-  if (searchQuery.value && selectedCategory.value) {
-    body = {
-      "OPER_OR_": [
-        { "expertCq1": { "OPERATOR": "LIKE", "OPERAND": `%${searchQuery.value}%` } },
-        { "expertPos": { "OPERATOR": "LIKE", "OPERAND": `%${searchQuery.value}%` } },
-        { "expertStr": { "OPERATOR": "LIKE", "OPERAND": `%${searchQuery.value}%` } },
-        { "expertCq2": { "OPERATOR": "LIKE", "OPERAND": `%${searchQuery.value}%` } },
-        { "expertDept": { "OPERATOR": "LIKE", "OPERAND": `%${searchQuery.value}%` } },
-        { "expertUserCn": { "OPERATOR": "LIKE", "OPERAND": `%${searchQuery.value}%` } }
-      ],
-      "expertCategory": selectedCategory.value
-    };
-  } else if (searchQuery.value) {
-    body = {
-      "OPER_OR_": [
-        { "expertCq1": { "OPERATOR": "LIKE", "OPERAND": `%${searchQuery.value}%` } },
-        { "expertCq2": { "OPERATOR": "LIKE", "OPERAND": `%${searchQuery.value}%` } },
-        { "expertPos": { "OPERATOR": "LIKE", "OPERAND": `%${searchQuery.value}%` } },
-        { "expertStr": { "OPERATOR": "LIKE", "OPERAND": `%${searchQuery.value}%` } },
-        { "expertDept": { "OPERATOR": "LIKE", "OPERAND": `%${searchQuery.value}%` } },
-        { "expertUserCn": { "OPERATOR": "LIKE", "OPERAND": `%${searchQuery.value}%` } }
-      ]
-    };
-  } else if (selectedCategory.value) {
-    body = {
-      "expertCategory": selectedCategory.value
-    };
-  }
-  console.log("--- DEBUGGING loadExperts ---");
-  console.log("Selected Category:", selectedCategory.value);
-  console.log("Search Query:", searchQuery.value);
-  console.log("Final Body Object to be sent:", body);
-
+  posts.value = [];
   try {
-  
-    const response = await fetch(API_URL, {
+    const payload = tabs[activeTab.value].payload;
+    const response = await fetch('/posts/findList', {
       method: 'POST',
-      credentials: 'include',
       headers: {
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
       },
-      body: JSON.stringify(body)
+      body: JSON.stringify(payload),
     });
-    console.log(response , 'here is my response')
+    if (!response.ok) {
+      throw new Error('Network response was not ok');
+    }
     const data = await response.json();
-    experts.value = data;
+    posts.value = data;
   } catch (error) {
-    console.log('Error fetching experts:', error);
-    experts.value = [];
+    console.error('Failed to load posts:', error);
   } finally {
     isLoading.value = false;
   }
 };
 
-const selectCategory = (category: string) => {
-  selectedCategory.value = category;
-  loadExperts();
+const searchPosts = async () => {
+    if (!searchQuery.value.trim()) {
+        loadPosts();
+        return;
+    }
+    isLoading.value = true;
+    posts.value = [];
+    try {
+        const payload = {
+            "OPER_OR_": [
+                { "postTitle": { "OPERATOR": "LIKE", "OPERAND": `%${searchQuery.value}%` } },
+                { "postDetails": { "OPERATOR": "LIKE", "OPERAND": `%${searchQuery.value}%` } }
+            ],
+            "status": "1"
+        };
+        const response = await fetch('/posts/findList', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        });
+        if (!response.ok) throw new Error('Failed to search posts');
+        posts.value = await response.json();
+    } catch (error) {
+        console.error('Error searching posts:', error);
+    } finally {
+        isLoading.value = false;
+    }
 };
 
-const handleClick = (expertUserId) => {
-    console.log(`Button clicked for expert with ID: ${expertUserId}`);
-    const lowerCaseUserId = expertUserId.toLowerCase();
-
- 
+const selectTab = (index: number) => {
+  activeTab.value = index;
+  searchQuery.value = ''; // Clear search when changing tabs
+  loadPosts();
 };
+
+const navigateToPost = (postId: number, postType: string) => {
+  router.push(`/post/${postId}/${postType}`);
+};
+
 onMounted(() => {
-  loadExperts();
+  loadPosts();
 });
 </script>

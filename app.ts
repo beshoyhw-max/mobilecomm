@@ -2,6 +2,8 @@ import { createApp } from 'vue'
 import App from './App.vue'
 import { createRouter, createWebHashHistory } from 'vue-router'
 import './tailwind.css'
+import Expert from './expert.vue'
+import PostDetails from './PostDetails.vue'
 
 const app = createApp(App)
 const router = createRouter({
@@ -9,15 +11,15 @@ const router = createRouter({
   routes: [
     {
       path: '/',
-      redirect: '/pages/home'
+      redirect: '/home'
     },
     {
-      path: '/pages/home',
-      component: () => import('./pages/home/index.vue')
+      path: '/home',
+      component: Expert
     },
     {
-      path: '/pages/about',
-      component: () => import('./pages/about/index.vue')
+      path: '/post/:postId/:postType',
+      component: PostDetails
     }
   ]
 })
