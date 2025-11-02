@@ -110,18 +110,30 @@
     </main>
 
     <!-- Comment Input -->
-    <footer class="fixed bottom-0 left-0 right-0 p-4 bg-white border-t flex items-center">
-      <input v-model="newCommentText" type="text" placeholder="write a comment" class="w-full bg-gray-100 border-none rounded-lg px-4 py-2 focus:outline-none">
-      <button @click="submitComment('0')" class="ml-4 bg-red-500 text-white px-6 py-2 rounded-lg">send</button>
+    <footer class="fixed bottom-0 left-0 right-0 p-4 bg-white border-t">
+      <input v-model="newCommentText" type="text" placeholder="write a comment" class="w-full bg-gray-100 border-none rounded-lg px-4 py-2 focus:outline-none mb-2">
+      <div class="flex justify-between items-center">
+        <label class="flex items-center whitespace-nowrap">
+          <input type="checkbox" v-model="isCommentAnonymous" class="mr-1">
+          匿名发布
+        </label>
+        <button @click="submitComment('0')" class="bg-red-500 text-white px-6 py-2 rounded-lg">send</button>
+      </div>
     </footer>
 
     <!-- Reply Popup -->
     <div v-if="showReplyPopup" class="fixed inset-0 bg-gray-800 bg-opacity-50 flex items-center justify-center">
       <div class="bg-white p-4 rounded-lg w-11/12">
-        <textarea v-model="newCommentText" rows="4" class="w-full border rounded-lg p-2" placeholder="Write a reply..."></textarea>
-        <div class="mt-4 flex justify-end">
-          <button @click="showReplyPopup = false" class="text-gray-500 mr-4">Cancel</button>
-          <button @click="submitComment(replyingToCommentId)" class="bg-red-500 text-white px-4 py-2 rounded-lg">Send</button>
+        <textarea v-model="replyText" rows="4" class="w-full border rounded-lg p-2" placeholder="Write a reply..."></textarea>
+        <div class="mt-4 flex justify-between items-center">
+            <label class="flex items-center text-sm">
+                <input type="checkbox" v-model="isReplyAnonymous" class="mr-1">
+                匿名发布
+            </label>
+            <div class="flex justify-end">
+                <button @click="showReplyPopup = false" class="text-gray-500 mr-4">Cancel</button>
+                <button @click="submitComment(replyingToCommentId)" class="bg-red-500 text-white px-4 py-2 rounded-lg">Send</button>
+            </div>
         </div>
       </div>
     </div>
@@ -198,6 +210,9 @@ const newCommentText = ref('');
 const showReplyPopup = ref(false);
 const replyingToCommentId = ref<string | null>(null);
 const currentUserCn = ref<string>('');
+const isCommentAnonymous = ref(false);
+const replyText = ref('');
+const isReplyAnonymous = ref(false);
 
 // Generic function for creatorUserCn
 function getCreatorUserCn(): string {
@@ -437,7 +452,11 @@ const fetchComments = async (postId: string) => {
 };
 
 const submitComment = async (parentId: string | null) => {
-  if (!post.value || !newCommentText.value.trim() || parentId === null) return;
+  const isReply = parentId !== '0';
+  const text = isReply ? replyText.value : newCommentText.value;
+  const isAnon = isReply ? isReplyAnonymous.value : isCommentAnonymous.value;
+
+  if (!post.value || !text.trim() || parentId === null) return;
 
   try {
     const response = await fetch('/postComments/insert', {
@@ -447,14 +466,20 @@ const submitComment = async (parentId: string | null) => {
         commentParentId: parentId,
         postId: post.value.postId.toString(),
         creatorDept: 'IT', // Placeholder
-        commentDetails: `<p>${newCommentText.value}</p>`,
+        commentDetails: `<p>${text}</p>`,
         creatorUserCn: currentUserCn.value,
-        isAnonymous: '0',
+        isAnonymous: isAnon ? '1' : '0',
       }),
     });
     if (!response.ok) throw new Error('Failed to submit comment');
 
-    newCommentText.value = '';
+    if (isReply) {
+      replyText.value = '';
+      isReplyAnonymous.value = false;
+    } else {
+      newCommentText.value = '';
+      isCommentAnonymous.value = false;
+    }
     showReplyPopup.value = false;
 
     await incrementCommentCount();

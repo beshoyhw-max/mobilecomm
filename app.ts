@@ -4,6 +4,7 @@ import { createRouter, createWebHashHistory } from 'vue-router'
 import './tailwind.css'
 import Expert from './expert.vue'
 import PostDetails from './PostDetails.vue'
+import CreatePost from './CreatePost.vue'
 
 const app = createApp(App)
 const router = createRouter({
@@ -20,6 +21,10 @@ const router = createRouter({
     {
       path: '/post/:postId/:postType',
       component: PostDetails
+    },
+    {
+      path: '/create-post',
+      component: CreatePost
     }
   ]
 })
