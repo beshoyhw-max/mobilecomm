@@ -138,8 +138,8 @@
       </div>
     </div>
   </div>
-  <div v-else-if="isLoading" class="flex items-center justify-center min-h-screen">
-    <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-gray-900"></div>
+  <div v-else-if="isLoading || isSubmitting" class="fixed inset-0 bg-gray-500 bg-opacity-75 flex items-center justify-center z-50">
+    <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-white"></div>
   </div>
   <div v-else class="p-4 text-center">
     Failed to load post.
@@ -201,6 +201,7 @@ const route = useRoute();
 const post = ref<PostDetails | null>(null);
 const isLiked = ref(false);
 const isLoading = ref(true);
+const isSubmitting = ref(false);
 const userRating = ref<{ postScore: number | null; postProfScore: number | null }>({
   postScore: null,
   postProfScore: null,
@@ -402,6 +403,7 @@ const fetchUserRating = async (postId: string) => {
 const submitRating = async (scoreType: 'postScore' | 'postProfScore', score: number) => {
   if (!post.value) return;
 
+  isSubmitting.value = true;
   const payload: {
     creatorUserCn: string;
     postId: string;
@@ -434,6 +436,8 @@ const submitRating = async (scoreType: 'postScore' | 'postProfScore', score: num
     }
   } catch (error) {
     console.error('Failed to submit rating', error);
+  } finally {
+    isSubmitting.value = false;
   }
 };
 
@@ -458,6 +462,7 @@ const submitComment = async (parentId: string | null) => {
 
   if (!post.value || !text.trim() || parentId === null) return;
 
+  isSubmitting.value = true;
   try {
     const response = await fetch('/postComments/insert', {
       method: 'POST',
@@ -489,6 +494,8 @@ const submitComment = async (parentId: string | null) => {
 
   } catch (error) {
     console.error('Failed to submit comment:', error);
+  } finally {
+    isSubmitting.value = false;
   }
 };
 

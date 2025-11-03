@@ -94,6 +94,11 @@
       </div>
 
     </main>
+
+    <!-- Loading Overlay -->
+    <div v-if="isSubmitting" class="fixed inset-0 bg-gray-500 bg-opacity-75 flex items-center justify-center z-50">
+      <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-white"></div>
+    </div>
   </div>
 </template>
 
@@ -139,6 +144,7 @@ const postTypes = [
 const allCategories = ['普惠安全', '普惠教育', '普惠链接', '普惠政务', '普惠能源', '云智OS', '云与算力'];
 const availableExperts = ref<Expert[]>([]);
 const isLoadingExperts = ref(false);
+const isSubmitting = ref(false);
 
 const dropdowns = reactive({
   postType: false,
@@ -185,6 +191,7 @@ const getUserInfo = () => {
 };
 
 const submitPost = async () => {
+    isSubmitting.value = true;
     const userInfo = getUserInfo();
     const taggedUsers = post.experts.map(expert => expert.expertUserId);
     const payload = {
@@ -223,6 +230,8 @@ const submitPost = async () => {
 
     } catch (error) {
         console.error('Failed to create post:', error);
+    } finally {
+        isSubmitting.value = false;
     }
 };
 

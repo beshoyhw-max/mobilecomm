@@ -44,13 +44,9 @@
 
     <!-- Post List -->
     <main class="p-4">
-      <div v-if="isLoading" class="flex justify-center items-center h-64">
-        <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-gray-900"></div>
-      </div>
-      <div v-else>
-        <div v-if="posts.length === 0" class="text-center text-gray-500 mt-8">
+      <div v-if="posts.length === 0 && !isLoading" class="text-center text-gray-500 mt-8">
           没有找到相关的帖子
-        </div>
+      </div>
         <div v-else class="space-y-4">
           <div v-for="post in posts" :key="post.postId" @click="navigateToPost(post.postId, post.postType)" class="bg-white rounded-lg shadow p-4">
             <div class="flex items-center mb-2">
@@ -77,6 +73,10 @@
       </div>
     </main>
 
+    <!-- Loading Overlay -->
+    <div v-if="isLoading" class="fixed inset-0 bg-gray-500 bg-opacity-75 flex items-center justify-center z-50">
+      <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-white"></div>
+    </div>
   </div>
 </template>
 
