@@ -106,9 +106,9 @@
           <!-- Expandable Details -->
           <div class="p-4 text-sm text-gray-700 space-y-2">
               <p><span class="font-semibold text-gray-800">任职:</span> {{ expert.expertCq1 }}</p>
-              <p :class="{ 'truncate': expandedCardId !== expert.expertsTableId }">
-                <span class="font-semibold text-gray-800">专家简介:</span> {{ expert.ExpertIntro }}
-              </p>
+              <div :class="{ 'truncate': expandedCardId !== expert.expertsTableId }">
+                <span class="font-semibold text-gray-800">专家简介:</span> <span v-html="expert.ExpertIntro"></span>
+              </div>
           </div>
 
           <!-- Read More Button -->
