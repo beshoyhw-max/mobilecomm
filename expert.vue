@@ -106,7 +106,7 @@
           <!-- Expandable Details -->
           <div class="p-4 text-sm text-gray-700 space-y-2">
               <p><span class="font-semibold text-gray-800">任职:</span> {{ expert.expertCq1 }}</p>
-              <div :class="{ 'truncate': expandedCardId !== expert.expertsTableId }">
+              <div :class="{ 'line-clamp-2': expandedCardId !== expert.expertsTableId }">
                 <span class="font-semibold text-gray-800">专家简介:</span> <span v-html="expert.ExpertIntro"></span>
               </div>
           </div>
@@ -238,3 +238,12 @@ onMounted(() => {
   loadExperts();
 });
 </script>
+
+<style>
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+</style>
