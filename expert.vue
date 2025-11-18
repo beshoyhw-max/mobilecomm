@@ -53,7 +53,7 @@
     <div class="px-4 pb-4 flex space-x-2 overflow-x-auto">
       <button 
         @click="selectCategory('')"
-        :class="['px-4 py-2 rounded-lg text-sm font-semibold', selectedCategory === '' ? 'bg-[#E57373] text-white' : 'bg-white text-gray-600 border border-gray-300']"
+        :class="['px-4 py-2 rounded-md text-sm font-semibold', selectedCategory === '' ? 'bg-[#E57373] text-white' : 'bg-gray-100 text-gray-700 border border-gray-300']"
       >
         全部
       </button>
@@ -61,7 +61,7 @@
         v-for="category in categories" 
         :key="category" 
         @click="selectCategory(category)"
-        :class="['px-4 py-2 rounded-lg text-sm font-semibold whitespace-nowrap', selectedCategory === category ? 'bg-[#E57373] text-white' : 'bg-white text-gray-600 border border-gray-300']"
+        :class="['px-4 py-2 rounded-md text-sm font-semibold whitespace-nowrap', selectedCategory === category ? 'bg-[#E57373] text-white' : 'bg-gray-100 text-gray-700 border border-gray-300']"
       >
         {{ category }}
       </button>
