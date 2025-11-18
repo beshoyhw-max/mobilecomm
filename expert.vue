@@ -106,11 +106,10 @@
           <!-- Expandable Details -->
           <div class="p-4 text-sm text-gray-700 space-y-2">
               <p><span class="font-semibold text-gray-800">任职:</span> {{ expert.expertCq1 }}</p>
-              <div class="flex">
-                <span class="font-semibold text-gray-800 flex-shrink-0">专家简介:</span>
+              <div class="relative pl-16">
+                <span class="font-semibold text-gray-800 absolute left-0">专家简介:</span>
                 <span
                   v-html="expert.ExpertIntro"
-                  class="ml-2"
                   :class="{ 'line-clamp-2': expandedCardId !== expert.expertsTableId }"
                 ></span>
               </div>
