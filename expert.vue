@@ -110,7 +110,7 @@
                 <span class="font-semibold text-gray-800 mr-2 flex-shrink-0">专家简介:</span>
                 <div
                   v-html="expert.ExpertIntro"
-                  class="min-w-0"
+                  class="min-w-0 intro-content"
                   :class="{ 'line-clamp-2': expandedCardId !== expert.expertsTableId }"
                 ></div>
               </div>
@@ -245,16 +245,18 @@ onMounted(() => {
 </script>
 
 <style>
+.intro-content {
+  line-height: 1.25rem; /* Set a consistent line height */
+}
+/* Reset margins on any child elements (like <p>) from v-html */
+.intro-content > * {
+  margin: 0;
+}
 .line-clamp-2 {
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
-  max-height: 2.5rem; /* Fallback for 2 lines of text-sm */
-}
-.clearfix::after {
-  content: "";
-  display: table;
-  clear: both;
+  max-height: 2.5rem; /* 2 * line-height */
 }
 </style>
