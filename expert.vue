@@ -108,11 +108,12 @@
               <p><span class="font-semibold text-gray-800">任职:</span> {{ expert.expertCq1 }}</p>
               <div class="clearfix">
                 <span class="font-semibold text-gray-800 float-left mr-2">专家简介:</span>
-                <span
-                  v-html="expert.ExpertIntro"
-                  class="block overflow-hidden"
+                <div
+                  class="overflow-hidden"
                   :class="{ 'line-clamp-2': expandedCardId !== expert.expertsTableId }"
-                ></span>
+                >
+                  <div v-html="expert.ExpertIntro"></div>
+                </div>
               </div>
           </div>
 
