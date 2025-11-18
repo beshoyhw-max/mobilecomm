@@ -72,30 +72,52 @@
     <!-- Expert List -->
     <main>
       <div class="px-4 pb-20">
-        <div class="bg-white rounded-lg shadow-md p-4 mb-4" v-for="expert in experts" :key="expert.expertsTableId">
-          <div class="flex items-center mb-4">
-            <img :src="expert.expertPic" class="h-16 w-16 rounded-full mr-4" />
-            <div class="flex-grow">
-              <div class="flex justify-between items-center">
-                <div>
-                  <p class="font-bold">{{ expert.expertUserCn }}</p>
-                  <p class="text-gray-500 text-sm">{{ expert.expertPos }}   {{ expert.expertDept }} </p>
+        <div class="bg-white rounded-lg shadow-md overflow-hidden mb-4 border border-gray-200" v-for="expert in experts" :key="expert.expertsTableId">
+          <div class="p-4">
+            <div class="flex">
+              <!-- Avatar -->
+              <img :src="expert.expertPic" class="h-20 w-20 rounded-full mr-4 flex-shrink-0" />
 
-                  <p class="text-gray-500 text-sm"></p>
+              <!-- Expert Info -->
+              <div class="flex-grow">
+                <div class="flex justify-between items-start">
+                  <div class="space-y-1">
+                    <p class="font-bold text-base">{{ expert.expertUserCn }} <span class="text-gray-400 font-normal text-sm">{{ expert.expertUserId }}</span></p>
+                    <p class="text-gray-500 text-sm">{{ expert.expertPos }}</p>
+                    <p class="text-gray-500 text-sm">{{ expert.expertDept }}</p>
+                    <p class="text-gray-500 text-sm">{{ expert.expertStr }}</p>
+                  </div>
+                  <div class="flex items-center space-x-2 flex-shrink-0">
+                    <span class="bg-gray-100 text-gray-600 text-xs px-3 py-1 rounded-full whitespace-nowrap">{{ expert.expertCategory }}</span>
+                    <button @click="handleClick(expert.expertUserId)" class="text-red-400">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
+                        </svg>
+                    </button>
+                  </div>
                 </div>
-                <span class="bg-gray-100 text-gray-500 text-xs px-2 py-1 rounded-full">{{ expert.expertCategory }}</span>
-                <button @click="handleClick(expert.expertUserId)" class="bg-red-500 text-white w-8 h-8 rounded-full flex items-center justify-center">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" /></svg>
-                </button>
               </div>
             </div>
           </div>
-          <div>
-            <p class="font-bold text-sm">{{expert.expertCq1}}</p>
-            <p class="font-bold text-sm">{{expert.expertCq2}}</p>
 
-            <p class="text-gray-500 text-sm">擅长领域: {{ expert.expertStr }}</p>
+          <!-- Divider -->
+          <hr class="border-gray-200" />
+
+          <!-- Expandable Details -->
+          <div class="p-4 text-sm text-gray-700 space-y-2">
+              <p><span class="font-semibold text-gray-800">任职:</span> {{ expert.expertCq1 }}</p>
+              <p :class="{ 'truncate': expandedCardId !== expert.expertsTableId }">
+                <span class="font-semibold text-gray-800">专家简介:</span> {{ expert.ExpertIntro }}
+              </p>
           </div>
+
+          <!-- Read More Button -->
+          <button @click="toggleExpand(expert.expertsTableId)" class="w-full bg-[#E57373] text-white py-2 text-center text-sm font-semibold hover:bg-red-500 transition-colors">
+            {{ expandedCardId === expert.expertsTableId ? 'Read Less' : 'Read More' }}
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 inline-block ml-1 transform transition-transform" :class="{ 'rotate-180': expandedCardId === expert.expertsTableId }" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+            </svg>
+          </button>
         </div>
         <div v-if="!isLoading && experts.length === 0" class="text-center text-gray-500 mt-8">
           No experts found.
@@ -124,7 +146,7 @@ interface Expert {
   expertStr: string;
   expertPic: string;
   expertCq1: string;
-  expertCq2: string;
+  ExpertIntro: string;
   expertUserId: string;
 }
 
@@ -133,7 +155,15 @@ const selectedCategory = ref('');
 const experts = ref<Expert[]>([]);
 const categories = ['普惠安全', '普惠教育', '普惠连接','普惠政务', '普惠能源', '云智OS' , '云与算力'];
 const isLoading = ref(false);
+const expandedCardId = ref<number | null>(null);
 
+const toggleExpand = (id: number) => {
+  if (expandedCardId.value === id) {
+    expandedCardId.value = null;
+  } else {
+    expandedCardId.value = id;
+  }
+};
 
 const loadExperts = async () => {
   isLoading.value = true;
@@ -145,7 +175,7 @@ const loadExperts = async () => {
         { "expertCq1": { "OPERATOR": "LIKE", "OPERAND": `%${searchQuery.value}%` } },
         { "expertPos": { "OPERATOR": "LIKE", "OPERAND": `%${searchQuery.value}%` } },
         { "expertStr": { "OPERATOR": "LIKE", "OPERAND": `%${searchQuery.value}%` } },
-        { "expertCq2": { "OPERATOR": "LIKE", "OPERAND": `%${searchQuery.value}%` } },
+        { "ExpertIntro": { "OPERATOR": "LIKE", "OPERAND": `%${searchQuery.value}%` } },
         { "expertDept": { "OPERATOR": "LIKE", "OPERAND": `%${searchQuery.value}%` } },
         { "expertUserCn": { "OPERATOR": "LIKE", "OPERAND": `%${searchQuery.value}%` } }
       ],
@@ -155,7 +185,7 @@ const loadExperts = async () => {
     body = {
       "OPER_OR_": [
         { "expertCq1": { "OPERATOR": "LIKE", "OPERAND": `%${searchQuery.value}%` } },
-        { "expertCq2": { "OPERATOR": "LIKE", "OPERAND": `%${searchQuery.value}%` } },
+        { "ExpertIntro": { "OPERATOR": "LIKE", "OPERAND": `%${searchQuery.value}%` } },
         { "expertPos": { "OPERATOR": "LIKE", "OPERAND": `%${searchQuery.value}%` } },
         { "expertStr": { "OPERATOR": "LIKE", "OPERAND": `%${searchQuery.value}%` } },
         { "expertDept": { "OPERATOR": "LIKE", "OPERAND": `%${searchQuery.value}%` } },
