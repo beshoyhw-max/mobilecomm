@@ -112,12 +112,13 @@
           </div>
 
           <!-- Read More Button -->
-          <button @click="toggleExpand(expert.expertsTableId)" class="w-full bg-[#E57373] text-white py-2 text-center text-sm font-semibold hover:bg-red-500 transition-colors">
-            {{ expandedCardId === expert.expertsTableId ? 'Read Less' : 'Read More' }}
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 inline-block ml-1 transform transition-transform" :class="{ 'rotate-180': expandedCardId === expert.expertsTableId }" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-            </svg>
-          </button>
+          <div v-if="expert.ExpertIntro" class="flex justify-center py-2">
+            <button @click="toggleExpand(expert.expertsTableId)" class="w-8 h-8 flex items-center justify-center bg-[#E57373] text-white rounded-md hover:bg-red-500 transition-colors">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 transform transition-transform" :class="{ 'rotate-180': expandedCardId === expert.expertsTableId }" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+              </svg>
+            </button>
+          </div>
         </div>
         <div v-if="!isLoading && experts.length === 0" class="text-center text-gray-500 mt-8">
           No experts found.
