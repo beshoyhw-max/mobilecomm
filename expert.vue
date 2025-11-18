@@ -248,9 +248,10 @@ onMounted(() => {
 .intro-content {
   line-height: 1.25rem; /* Set a consistent line height */
 }
-/* Reset margins on any child elements (like <p>) from v-html */
-.intro-content > * {
-  margin: 0;
+/* Reset margins on ALL descendant elements (e.g., <p>, <div>) from v-html */
+.intro-content * {
+  margin: 0 !important;
+  padding: 0 !important;
 }
 .line-clamp-2 {
   display: -webkit-box;
