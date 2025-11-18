@@ -80,13 +80,8 @@
 
               <!-- Expert Info -->
               <div class="flex-grow">
-                <div class="flex justify-between items-start">
-                  <div class="space-y-1">
-                    <p class="font-bold text-base">{{ expert.expertUserCn }} <span class="text-gray-400 font-normal text-sm">{{ expert.expertUserId }}</span></p>
-                    <p class="text-gray-500 text-sm">{{ expert.expertPos }}</p>
-                    <p class="text-gray-500 text-sm">{{ expert.expertDept }}</p>
-                    <p class="text-gray-500 text-sm">{{ expert.expertStr }}</p>
-                  </div>
+                <div class="flex justify-between items-center">
+                  <p class="font-bold text-base">{{ expert.expertUserCn }} <span class="text-gray-400 font-normal text-sm">{{ expert.expertUserId }}</span></p>
                   <div class="flex items-center space-x-2 flex-shrink-0">
                     <span class="bg-gray-100 text-gray-600 text-xs px-3 py-1 rounded-full whitespace-nowrap">{{ expert.expertCategory }}</span>
                     <button @click="handleClick(expert.expertUserId)" class="text-red-400">
@@ -95,6 +90,11 @@
                         </svg>
                     </button>
                   </div>
+                </div>
+                <div class="mt-2 space-y-1">
+                  <p class="text-gray-500 text-sm">{{ expert.expertPos }}</p>
+                  <p class="text-gray-500 text-sm">{{ expert.expertDept }}</p>
+                  <p class="text-gray-500 text-sm">{{ expert.expertStr }}</p>
                 </div>
               </div>
             </div>
